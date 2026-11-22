@@ -1,8 +1,11 @@
 package edu.handong.week12.book;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
@@ -14,27 +17,49 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> list() {
-        return service.findAll();
-    } // TODO: Pageable
+    public ResponseEntity<Page<BookResponse>> list(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<BookResponse> result = service.findAll(pageable);
+
+        return ResponseEntity.ok(result);
+    }
 
     @GetMapping("/{id}")
-    public Book get(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<BookResponse> get(@PathVariable Long id) {
+        Book book = service.findById(id);
+        BookResponse result = BookResponse.from(book);
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public Book create(@RequestBody Book input) {
-        return service.create(input);
-    } // TODO: @Valid, ResponseEntity 201
+    public ResponseEntity<BookResponse> create(
+            @RequestBody BookRequest request
+    ) {
+        Book saved = service.create(request);
+        BookResponse result = BookResponse.from(saved);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(result);
+    }
 
     @PutMapping("/{id}")
-    public Book update(@PathVariable Long id, @RequestBody Book input) {
-        return service.update(id, input);
+    public ResponseEntity<BookResponse> update(
+            @PathVariable Long id,
+            @RequestBody BookRequest request
+    ) {
+        Book updated = service.update(id, request);
+        BookResponse result = BookResponse.from(updated);
+
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
-    } // TODO: 204
+
+        return ResponseEntity.noContent().build();
+    }
 }

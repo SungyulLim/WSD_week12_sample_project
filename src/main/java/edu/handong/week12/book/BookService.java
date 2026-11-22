@@ -1,7 +1,8 @@
 package edu.handong.week12.book;
 
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class BookService {
@@ -11,21 +12,33 @@ public class BookService {
     this.repository = repository;
   }
 
-  public List<Book> findAll() {
-    return repository.findAll();
-  } // TODO STEP 6: Pagination/Sorting
+  public Page<BookResponse> findAll(Pageable pageable) {
+    return repository.findAll(pageable).map(BookResponse::from);
+  }
 
   public Book findById(Long id) {
     return repository.findById(id).orElseThrow();
   } // TODO STEP 5: 404
 
-  public Book create(Book book) {
-    return repository.save(book);
-  } // TODO STEP 3: DTO
+  public Book create(BookRequest request) {
+    Book book = new Book(
+            request.title(),
+            request.author(),
+            request.price()
+    );
 
-  public Book update(Long id, Book input) {
+    return repository.save(book);
+  }
+
+  public Book update(Long id, BookRequest request) {
     Book book = findById(id);
-    book.update(input.getTitle(), input.getAuthor(), input.getPrice());
+
+    book.update(
+            request.title(),
+            request.author(),
+            request.price()
+    );
+
     return repository.save(book);
   }
 
