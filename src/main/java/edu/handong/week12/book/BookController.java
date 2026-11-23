@@ -37,11 +37,19 @@ public class BookController {
         return ResponseEntity.ok(result);
     }
 
+    // POST /api/books 요청을 처리한다.
     @PostMapping
-    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
+    public ResponseEntity<BookResponse> create(
+            // 요청 JSON을 BookRequest로 변환하고,
+            // 메서드 실행 전에 DTO에 선언된 검증 조건을 검사한다.
+            @Valid @RequestBody BookRequest request) {
+        // 요청 데이터를 Service에 전달하고, DB에 저장된 Book Entity를 받는다.
         Book saved = service.create(request);
+
+        // 저장된 Entity를 클라이언트에게 반환할 응답 DTO로 변환한다.
         BookResponse result = BookResponse.from(saved);
 
+        // 등록 성공을 나타내는 201 상태 코드와 응답 DTO를 함께 반환한다.
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
