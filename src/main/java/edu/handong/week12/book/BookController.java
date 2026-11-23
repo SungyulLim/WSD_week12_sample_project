@@ -6,6 +6,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/books")
@@ -17,9 +18,7 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BookResponse>> list(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+    public ResponseEntity<Page<BookResponse>> list(@PageableDefault(size = 10) Pageable pageable) {
         Page<BookResponse> result = service.findAll(pageable);
 
         return ResponseEntity.ok(result);
@@ -34,22 +33,15 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookResponse> create(
-            @RequestBody BookRequest request
-    ) {
+    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
         Book saved = service.create(request);
         BookResponse result = BookResponse.from(saved);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponse> update(
-            @PathVariable Long id,
-            @RequestBody BookRequest request
-    ) {
+    public ResponseEntity<BookResponse> update(@PathVariable Long id, @Valid @RequestBody BookRequest request) {
         Book updated = service.update(id, request);
         BookResponse result = BookResponse.from(updated);
 
